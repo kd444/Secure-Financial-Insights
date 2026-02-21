@@ -1,0 +1,194 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "LLM Request Latency (p50 / p95 / p99)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(llm_request_latency_seconds_bucket[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(llm_request_latency_seconds_bucket[5m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(llm_request_latency_seconds_bucket[5m]))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "s"}
+      }
+    },
+    {
+      "title": "Token Usage (Rate)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(llm_token_usage_total{type=\"prompt\"}[5m])",
+          "legendFormat": "Prompt Tokens/s"
+        },
+        {
+          "expr": "rate(llm_token_usage_total{type=\"completion\"}[5m])",
+          "legendFormat": "Completion Tokens/s"
+        }
+      ]
+    },
+    {
+      "title": "Hallucination Score Distribution",
+      "type": "histogram",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 8},
+      "targets": [
+        {
+          "expr": "evaluation_score_bucket{metric=\"hallucination\"}",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "title": "Consistency Score Distribution",
+      "type": "histogram",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 8},
+      "targets": [
+        {
+          "expr": "evaluation_score_bucket{metric=\"consistency\"}",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "title": "Confidence Score Distribution",
+      "type": "histogram",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 8},
+      "targets": [
+        {
+          "expr": "evaluation_score_bucket{metric=\"confidence\"}",
+          "legendFormat": "{{le}}"
+        }
+      ]
+    },
+    {
+      "title": "Evaluation Verdicts",
+      "type": "piechart",
+      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16},
+      "targets": [
+        {
+          "expr": "evaluation_status_total",
+          "legendFormat": "{{status}}"
+        }
+      ]
+    },
+    {
+      "title": "PII Detections by Type",
+      "type": "bargauge",
+      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 16},
+      "targets": [
+        {
+          "expr": "pii_detections_total",
+          "legendFormat": "{{entity_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Content Filter Violations",
+      "type": "stat",
+      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 16},
+      "targets": [
+        {
+          "expr": "content_filter_violations_total",
+          "legendFormat": "{{violation_type}}"
+        }
+      ]
+    },
+    {
+      "title": "Query Throughput by Type",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+      "targets": [
+        {
+          "expr": "rate(queries_total[5m])",
+          "legendFormat": "{{query_type}}"
+        }
+      ]
+    },
+    {
+      "title": "End-to-End Query Latency",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(query_end_to_end_latency_seconds_bucket[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(query_end_to_end_latency_seconds_bucket[5m]))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {"unit": "s"}
+      }
+    },
+    {
+      "title": "LLM Error Rate",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 32},
+      "targets": [
+        {
+          "expr": "rate(llm_request_errors_total[5m])",
+          "legendFormat": "Errors/s"
+        }
+      ]
+    },
+    {
+      "title": "Active Requests",
+      "type": "gauge",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 32},
+      "targets": [
+        {
+          "expr": "active_requests",
+          "legendFormat": "Active"
+        }
+      ]
+    },
+    {
+      "title": "Vector Store Size",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 32},
+      "targets": [
+        {
+          "expr": "vector_store_total_chunks",
+          "legendFormat": "Total Chunks"
+        }
+      ]
+    },
+    {
+      "title": "Documents Processed",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 32},
+      "targets": [
+        {
+          "expr": "documents_processed_total",
+          "legendFormat": "{{filing_type}}"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["llm", "financial-insights", "quality"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "Financial Insights - LLM Quality Dashboard",
+  "uid": "financial-insights-llm-quality"
+}
