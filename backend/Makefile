@@ -28,13 +28,13 @@ format:
 	ruff check --fix src/ tests/
 
 docker-up:
-	docker-compose up --build -d
+	cd .. && docker-compose up --build -d
 
 docker-down:
-	docker-compose down
+	cd .. && docker-compose down
 
 docker-logs:
-	docker-compose logs -f api
+	cd .. && docker-compose logs -f api
 
 ingest-sample:
 	python -m scripts.ingest_sample --ticker AAPL --filing-type 10-K

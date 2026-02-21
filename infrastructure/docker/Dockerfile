@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY pyproject.toml ./
+COPY backend/pyproject.toml ./
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \
     && pip install --no-cache-dir --prefix=/install .
 
@@ -30,8 +30,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=builder /install /usr/local
 
 # Copy application code
-COPY src/ ./src/
-COPY pyproject.toml ./
+COPY backend/src/ ./src/
+COPY backend/pyproject.toml ./
 
 # Create data directories
 RUN mkdir -p /app/data /app/chroma_db /app/logs \

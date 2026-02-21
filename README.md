@@ -103,12 +103,14 @@ Ingests SEC filings (10-K, 10-Q, 8-K) and earnings reports, then provides AI-pow
 | Cache | Redis |
 | Containerization | Docker, docker-compose |
 | IaC | Terraform (AWS ECS Fargate, RDS, ElastiCache, ALB) |
+| Frontend | Next.js 14, React 19, shadcn/ui, Tailwind CSS, Recharts |
 | Testing | pytest, pytest-asyncio |
 
 ## Quick Start
 
 ### Prerequisites
 - Python 3.11+
+- Node.js 18+ and pnpm
 - Docker & Docker Compose
 - OpenAI API key
 
@@ -119,15 +121,14 @@ Ingests SEC filings (10-K, 10-Q, 8-K) and earnings reports, then provides AI-pow
 git clone https://github.com/kd444/-Secure-Financial-Insights-Copilot.git
 cd -Secure-Financial-Insights-Copilot
 
-# Environment
-cp .env.example .env
-# Edit .env with your OpenAI API key
-
-# Install
-pip install -e ".[dev]"
-
-# Run
+# Backend
+cp backend/.env.example backend/.env
+# Edit backend/.env with your OpenAI API key
+cd backend && pip install -e ".[dev]"
 python -m src.main
+
+# Frontend (in a new terminal)
+cd frontend && pnpm install && pnpm dev
 ```
 
 ### Docker Compose (Full Stack)
@@ -136,9 +137,10 @@ python -m src.main
 # Start all services (API, PostgreSQL, Redis, Prometheus, Grafana)
 docker-compose up --build
 
-# API:        http://localhost:8000/docs
-# Grafana:    http://localhost:3000 (admin/admin)
-# Prometheus: http://localhost:9090
+# Backend API:  http://localhost:8000/docs
+# Frontend:     http://localhost:3001
+# Grafana:      http://localhost:3000 (admin/admin)
+# Prometheus:   http://localhost:9090
 ```
 
 ### Ingest a SEC Filing
@@ -172,6 +174,8 @@ Response includes:
 ## Testing
 
 ```bash
+cd backend
+
 # Unit tests
 pytest tests/unit/ -v
 
@@ -219,32 +223,43 @@ Deploys: ECS Fargate cluster, ALB, RDS PostgreSQL, ElastiCache Redis, CloudWatch
 ## Project Structure
 
 ```
-src/
-├── api/                    # FastAPI routes and dependencies
-│   └── routes/             # query, documents, evaluation, health
-├── core/                   # Config, logging, exceptions
-├── document_processing/    # SEC parser, chunker, EDGAR downloader
-├── rag/                    # Embeddings, vector store, hybrid retriever
-├── llm/                    # LLM client, prompt templates
-├── evaluation/             # Hallucination detector, consistency scorer,
-│                           # confidence scorer, evaluation pipeline
-├── guardrails/             # PII redactor, content filter
-├── orchestration/          # LangGraph workflow
-├── monitoring/             # Prometheus metrics definitions
-└── models/                 # Pydantic schemas, SQLAlchemy models
-
-infrastructure/
-├── docker/                 # Multi-stage Dockerfile
-└── terraform/              # AWS IaC (VPC, ECS, RDS, ElastiCache)
-    └── modules/            # vpc, ecs, rds, elasticache
-
-monitoring/
-├── prometheus/             # Prometheus config
-└── grafana/                # Dashboards and provisioning
-    └── dashboards/         # LLM Quality Dashboard JSON
-
-tests/
-├── unit/                   # Unit tests for all components
-├── integration/            # API integration tests
-└── evaluation/             # LLM evaluation golden test cases
+├── backend/
+│   ├── src/
+│   │   ├── api/                    # FastAPI routes and dependencies
+│   │   │   └── routes/             # query, documents, evaluation, health
+│   │   ├── core/                   # Config, logging, exceptions
+│   │   ├── document_processing/    # SEC parser, chunker, EDGAR downloader
+│   │   ├── rag/                    # Embeddings, vector store, hybrid retriever
+│   │   ├── llm/                    # LLM client, prompt templates
+│   │   ├── evaluation/             # Hallucination, consistency, confidence
+│   │   ├── guardrails/             # PII redactor, content filter
+│   │   ├── orchestration/          # LangGraph workflow
+│   │   ├── monitoring/             # Prometheus metrics definitions
+│   │   └── models/                 # Pydantic schemas, SQLAlchemy models
+│   ├── tests/
+│   │   ├── unit/                   # Unit tests
+│   │   ├── integration/            # API integration tests
+│   │   └── evaluation/             # LLM evaluation golden cases
+│   └── scripts/                    # Ingestion utilities
+│
+├── frontend/
+│   ├── app/                        # Next.js App Router pages
+│   ├── components/                 # React components
+│   │   ├── ui/                     # shadcn/ui component library
+│   │   ├── query/                  # Query page components
+│   │   ├── documents/              # Document ingestion components
+│   │   ├── evaluation/             # Evaluation dashboard
+│   │   └── dashboard/              # Overview dashboard
+│   └── lib/                        # API client, types, store
+│
+├── infrastructure/
+│   ├── docker/                     # Multi-stage Dockerfile
+│   └── terraform/                  # AWS IaC (ECS, RDS, ElastiCache)
+│
+├── monitoring/
+│   ├── prometheus/                 # Prometheus config
+│   └── grafana/                    # Dashboards and provisioning
+│
+├── docker-compose.yml              # Full stack orchestration
+└── Makefile                        # Dev commands
 ```
