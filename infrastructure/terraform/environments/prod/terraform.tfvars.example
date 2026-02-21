@@ -1,0 +1,11 @@
+aws_region                = "us-east-1"
+environment               = "prod"
+app_name                  = "financial-insights"
+container_image           = "123456789012.dkr.ecr.us-east-1.amazonaws.com/financial-insights:latest"
+container_port            = 8000
+desired_count             = 2
+cpu                       = 1024
+memory                    = 2048
+db_instance_class         = "db.t3.medium"
+elasticache_node_type     = "cache.t3.medium"
+openai_api_key_secret_arn = "arn:aws:secretsmanager:us-east-1:123456789012:secret:openai-api-key-prod-AbCdEf"
